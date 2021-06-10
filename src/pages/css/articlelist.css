@@ -1,0 +1,19 @@
+.articles {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.article-link {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.article-link h3 {
+  color: #000;
+}
+
+.article-link a {
+  text-decoration: none;
+}
