@@ -10,40 +10,70 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 8000;
 
-app.get("/", (req, res) => {
-  res.json({ response: "Blogex Backend" });
-});
-
-app.get("/api/:name", async (req, res) => {
+const withDB = async (operations, res) => {
   try {
-    const name = req.params.name;
     const client = await MongoClient.connect(DB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     const db = client.db("blogex");
-    const articleInfo = await db.collection("articles").findOne({ name: name });
-    res.status(200).json(articleInfo);
-
+    await operations(db);
     client.close();
   } catch (err) {
     res.status(500).json({ message: "Error connecting to the database", err });
   }
+};
+
+app.get("/", (req, res) => {
+  res.json({ response: "Blogex Backend" });
 });
 
-app.post("/api/:name/upvote", (req, res) => {
-  const name = req.params.name;
-  articles[name].upvotes += 1;
-  res.status(200).json({
-    response: `${name} now has ${articles[name].upvotes} upvotes`,
-  });
+app.get("/api/:name", async (req, res) => {
+  withDB(async (db) => {
+    const name = req.params.name;
+    const articleInfo = await db.collection("articles").findOne({ name: name });
+    res.status(200).json(articleInfo);
+  }, res);
 });
 
-app.post("/api/:name/add-comment", (req, res) => {
-  const name = req.params.name;
-  const { user, comment } = req.body;
-  articles[name].comments.push({ user, comment });
-  res.status(200).json(articles[name]);
+app.post("/api/:name/upvote", async (req, res) => {
+  withDB(async (db) => {
+    const name = req.params.name;
+    const articleInfo = await db.collection("articles").findOne({ name: name });
+    await db
+      .collection("articles")
+      .updateOne(
+        { name: name },
+        { $set: { upvotes: articleInfo.upvotes + 1 } }
+      );
+
+    const updatedArticle = await db
+      .collection("articles")
+      .findOne({ name: name });
+
+    res.status(200).json(updatedArticle);
+  }, res);
+});
+
+app.post("/api/:name/add-comment", async (req, res) => {
+  withDB(async (db) => {
+    const name = req.params.name;
+    const { user, comment } = req.body;
+
+    const articleInfo = await db.collection("articles").findOne({ name: name });
+    await db
+      .collection("articles")
+      .updateOne(
+        { name: name },
+        { $set: { comments: articleInfo.comments.concat({ user, comment }) } }
+      );
+
+    const updatedArticle = await db
+      .collection("articles")
+      .findOne({ name: name });
+
+    res.status(200).json(updatedArticle);
+  }, res);
 });
 
 app.listen(port, () => {
