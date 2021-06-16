@@ -28,7 +28,7 @@ const Article = ({ match }) => {
   return (
     <div className="article-container">
       <h1 id="name">{article.title}</h1>
-      <p>This article has been liked by {articleInfo.upvotes} people</p>
+      <p>This article is liked by {articleInfo.upvotes} people</p>
       <p id="description">{article.article}</p>
       <div className="related">
         <h3 className="related-title">Related Articles:</h3>
