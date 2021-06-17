@@ -1,10 +1,12 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require('cors');
 const { MongoClient } = require("mongodb");
 
 const DB_URI = "mongodb://localhost:27017";
 
 const app = express();
+app.use(cors());
 app.use(morgan("tiny"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
