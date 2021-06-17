@@ -1,0 +1,15 @@
+.comment {
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+.comment h3 {
+  margin-bottom: 1rem;
+}
+
+.commentDetails {
+  padding-left: 1rem;
+  margin: 1rem 0;
+}

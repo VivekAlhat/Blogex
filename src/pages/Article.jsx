@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
+import AddComment from "../components/AddComment";
+import Upvote from "../components/Upvote";
+import CommentList from "../components/CommentList";
 import Articles from "../components/Articles";
 import Error from "./Error";
 import content from "../data/content";
 import "./css/article.css";
-import { useEffect, useState } from "react";
 
 const Article = ({ match }) => {
   const name = match.params.name;
@@ -15,7 +18,7 @@ const Article = ({ match }) => {
     const getData = async () => {
       const result = await fetch(`/api/${name}`);
       const body = await result.json();
-      console.log(body);
+
       setArticleInfo(body);
     };
     getData();
@@ -28,8 +31,16 @@ const Article = ({ match }) => {
   return (
     <div className="article-container">
       <h1 id="name">{article.title}</h1>
-      <p>This article is liked by {articleInfo.upvotes} people</p>
+      <Upvote
+        name={name}
+        setArticleInfo={setArticleInfo}
+        upvotes={articleInfo.upvotes}
+      />
       <p id="description">{article.article}</p>
+      {articleInfo.comments.length > 0 && (
+        <CommentList commentData={articleInfo.comments} />
+      )}
+      <AddComment articleName={name} setArticleInfo={setArticleInfo} />
       <div className="related">
         <h3 className="related-title">Related Articles:</h3>
         <Articles content={otherArticles} />
